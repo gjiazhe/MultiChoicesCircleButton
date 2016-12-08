@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -27,6 +28,11 @@ public class MultiChoicesCircleButton extends View {
     private float mFromExpandProgress;
     private Animation expandAnimation;
     private Animation collapseAnimation;
+
+    private String mText = "请选择 Choose";
+    private int mTextSize = 90;
+    private int mTextColor = Color.GRAY;
+    private int mButtonColor = Color.RED;
 
     private Paint mPaint;
     private Camera mCamera = new Camera();
@@ -52,7 +58,7 @@ public class MultiChoicesCircleButton extends View {
 
     private void initPaint() {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaint.setColor(Color.RED);
+        mPaint.setTextAlign(Paint.Align.CENTER);
     }
 
     private void initAnimation() {
@@ -134,8 +140,20 @@ public class MultiChoicesCircleButton extends View {
         if (isDragged) {
             canvas.concat(mMatrix);
         }
+
+        // Draw circle
+        mPaint.setColor(mButtonColor);
         final float radius = (mExpandRadius - mCollapseRadius) * mCurrentExpandProgress + mCollapseRadius;
         canvas.drawCircle(mCircleCentreX, mCircleCentreY, radius, mPaint);
+
+        // Draw text
+        mPaint.setTextSize(mTextSize * mCurrentExpandProgress);
+        mPaint.setColor(mTextColor);
+        Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
+        final float textHeight = fontMetrics.bottom - fontMetrics.top;
+        final float baseLineY = mCircleCentreY - radius - textHeight/2
+                - (fontMetrics.descent - fontMetrics.ascent)/2 - fontMetrics.ascent;
+        canvas.drawText(mText, mCircleCentreX, baseLineY, mPaint);
     }
 
     private void rotate(float eventX, float eventY) {
@@ -145,8 +163,8 @@ public class MultiChoicesCircleButton extends View {
 
         final float offsetY = mCircleCentreY - eventY;
         final float offsetX = mCircleCentreX - eventX;
-        final float rotateX = -offsetY / size * 45;
-        final float rotateY = offsetX / size * 45;
+        final float rotateX = offsetY / size * 45;
+        final float rotateY = -offsetX / size * 45;
         mCamera.save();
         mCamera.rotateX(rotateX);
         mCamera.rotateY(rotateY);
@@ -158,12 +176,12 @@ public class MultiChoicesCircleButton extends View {
     }
 
     private void startExpandAnimation() {
-        expandAnimation.setDuration(200);
+        expandAnimation.setDuration(300);
         startAnimation(expandAnimation);
     }
 
     private void startCollapseAnimation() {
-        collapseAnimation.setDuration(200);
+        collapseAnimation.setDuration(300);
         startAnimation(collapseAnimation);
     }
 }
