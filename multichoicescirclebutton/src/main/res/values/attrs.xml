@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="MultiChoicesCircleButton">
-    <attr name="mccb_collapseRadius" format="dimension"/>
-    <attr name="mccb_expandRadius" format="dimension"/>
-    <attr name="mccb_text" format="string"/>
-    <attr name="mccb_textSize" format="dimension"/>
-    <attr name="mccb_textColor" format="color"/>
-    <attr name="mccb_buttonColor" format="color"/>
-        </declare-styleable>
+        <attr name="mccb_collapseRadius" format="dimension"/>
+        <attr name="mccb_expandRadius" format="dimension"/>
+        <attr name="mccb_text" format="string"/>
+        <attr name="mccb_textSize" format="dimension"/>
+        <attr name="mccb_textColor" format="color"/>
+        <attr name="mccb_buttonColor" format="color"/>
+        <attr name="mccb_duration" format="integer"/>
+    </declare-styleable>
 </resources>

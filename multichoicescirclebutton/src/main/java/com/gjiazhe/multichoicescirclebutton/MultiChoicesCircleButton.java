@@ -30,6 +30,7 @@ public class MultiChoicesCircleButton extends View {
     private float mFromExpandProgress;
     private Animation expandAnimation;
     private Animation collapseAnimation;
+    private int mDuration;
 
     private String mText;
     private float mTextSize;
@@ -61,6 +62,7 @@ public class MultiChoicesCircleButton extends View {
         mTextSize = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_textSize, sp2px(30));
         mTextColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_textColor, Color.GRAY);
         mButtonColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_buttonColor, Color.RED);
+        mDuration = typedArray.getInt(R.styleable.MultiChoicesCircleButton_mccb_duration, 200);
         typedArray.recycle();
 
         initPaint();
@@ -189,12 +191,12 @@ public class MultiChoicesCircleButton extends View {
     }
 
     private void startExpandAnimation() {
-        expandAnimation.setDuration(300);
+        expandAnimation.setDuration(mDuration);
         startAnimation(expandAnimation);
     }
 
     private void startCollapseAnimation() {
-        collapseAnimation.setDuration(300);
+        collapseAnimation.setDuration(mDuration);
         startAnimation(collapseAnimation);
     }
 
