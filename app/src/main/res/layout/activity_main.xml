@@ -7,10 +7,7 @@
     tools:context="com.gjiazhe.multichoicescirclebutton.sample.MainActivity">
 
     <com.gjiazhe.multichoicescirclebutton.MultiChoicesCircleButton
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:id="@+id/multiChoicesCircleButton"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </RelativeLayout>

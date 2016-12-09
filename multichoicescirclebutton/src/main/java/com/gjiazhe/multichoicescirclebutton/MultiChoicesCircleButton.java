@@ -1,13 +1,15 @@
 package com.gjiazhe.multichoicescirclebutton;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Camera;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -19,24 +21,26 @@ import android.view.animation.Transformation;
 
 public class MultiChoicesCircleButton extends View {
     private boolean isDragged = false;
-    private int mCollapseRadius;
-    private int mExpandRadius;
-    private int mCircleCentreX;
-    private int mCircleCentreY;
+    private float mCollapseRadius;
+    private float mExpandRadius;
+    private float mCircleCentreX;
+    private float mCircleCentreY;
 
     private float mCurrentExpandProgress = 0f;
     private float mFromExpandProgress;
     private Animation expandAnimation;
     private Animation collapseAnimation;
 
-    private String mText = "请选择 Choose";
-    private int mTextSize = 90;
-    private int mTextColor = Color.GRAY;
-    private int mButtonColor = Color.RED;
+    private String mText;
+    private float mTextSize;
+    private int mTextColor;
+    private int mButtonColor;
 
     private Paint mPaint;
     private Camera mCamera = new Camera();
     private Matrix mMatrix = new Matrix();
+
+    private DisplayMetrics mDisplayMetrics;
 
     public MultiChoicesCircleButton(Context context) {
         this(context, null);
@@ -48,9 +52,16 @@ public class MultiChoicesCircleButton extends View {
 
     public MultiChoicesCircleButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mDisplayMetrics = context.getResources().getDisplayMetrics();
 
-        mCollapseRadius = 120;
-        mExpandRadius = 360;
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.MultiChoicesCircleButton);
+        mCollapseRadius = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_collapseRadius, dp2px(40));
+        mExpandRadius = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_expandRadius, dp2px(120));
+        mText = typedArray.getString(R.styleable.MultiChoicesCircleButton_mccb_text);
+        mTextSize = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_textSize, sp2px(30));
+        mTextColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_textColor, Color.GRAY);
+        mButtonColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_buttonColor, Color.RED);
+        typedArray.recycle();
 
         initPaint();
         initAnimation();
@@ -147,13 +158,15 @@ public class MultiChoicesCircleButton extends View {
         canvas.drawCircle(mCircleCentreX, mCircleCentreY, radius, mPaint);
 
         // Draw text
-        mPaint.setTextSize(mTextSize * mCurrentExpandProgress);
-        mPaint.setColor(mTextColor);
-        Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
-        final float textHeight = fontMetrics.bottom - fontMetrics.top;
-        final float baseLineY = mCircleCentreY - radius - textHeight/2
-                - (fontMetrics.descent - fontMetrics.ascent)/2 - fontMetrics.ascent;
-        canvas.drawText(mText, mCircleCentreX, baseLineY, mPaint);
+        if (mText != null && mText.length() != 0) {
+            mPaint.setTextSize(mTextSize * mCurrentExpandProgress);
+            mPaint.setColor(mTextColor);
+            Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
+            final float textHeight = fontMetrics.bottom - fontMetrics.top;
+            final float baseLineY = mCircleCentreY - radius - textHeight / 2
+                    - (fontMetrics.descent - fontMetrics.ascent) / 2 - fontMetrics.ascent;
+            canvas.drawText(mText, mCircleCentreX, baseLineY, mPaint);
+        }
     }
 
     private void rotate(float eventX, float eventY) {
@@ -183,5 +196,13 @@ public class MultiChoicesCircleButton extends View {
     private void startCollapseAnimation() {
         collapseAnimation.setDuration(300);
         startAnimation(collapseAnimation);
+    }
+
+    private float dp2px(int dp) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, this.mDisplayMetrics);
+    }
+
+    private float sp2px(int sp) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, this.mDisplayMetrics);
     }
 }
