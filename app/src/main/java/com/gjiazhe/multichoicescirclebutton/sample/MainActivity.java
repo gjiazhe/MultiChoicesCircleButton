@@ -17,11 +17,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         List<MultiChoicesCircleButton.Item> buttonItems = new ArrayList<>();
-        MultiChoicesCircleButton.Item item1 = new MultiChoicesCircleButton.Item("Like", 20, getResources().getDrawable(R.drawable.icon1), 30, 80);
+        MultiChoicesCircleButton.Item item1 = new MultiChoicesCircleButton.Item("Like",getResources().getDrawable(R.drawable.icon1), 30);
         buttonItems.add(item1);
-        MultiChoicesCircleButton.Item item2 = new MultiChoicesCircleButton.Item("Message", 20, getResources().getDrawable(R.drawable.icon2), 90, 80);
+        MultiChoicesCircleButton.Item item2 = new MultiChoicesCircleButton.Item("Message", getResources().getDrawable(R.drawable.icon2), 90);
         buttonItems.add(item2);
-        MultiChoicesCircleButton.Item item3 = new MultiChoicesCircleButton.Item("Tag", 20, getResources().getDrawable(R.drawable.icon3), 150, 80);
+        MultiChoicesCircleButton.Item item3 = new MultiChoicesCircleButton.Item("Tag", getResources().getDrawable(R.drawable.icon3), 150);
         buttonItems.add(item3);
 
         multiChoicesCircleButton = (MultiChoicesCircleButton) findViewById(R.id.multiChoicesCircleButton);

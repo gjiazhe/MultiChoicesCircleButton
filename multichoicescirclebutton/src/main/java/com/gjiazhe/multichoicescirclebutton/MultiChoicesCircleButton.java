@@ -30,6 +30,10 @@ public class MultiChoicesCircleButton extends View {
     private float mCircleCentreX;
     private float mCircleCentreY;
 
+    private float mItemRadius;
+    private float mItemDistanceToCentre;
+    private int mItemBackgroundColor;
+
     private float mCurrentExpandProgress = 0f;
     private float mFromExpandProgress;
     private Animation expandAnimation;
@@ -48,7 +52,7 @@ public class MultiChoicesCircleButton extends View {
     private static DisplayMetrics mDisplayMetrics;
 
     private List<Item> mItems = new ArrayList<>();
-    private int mSelectedItemIndex = -1;
+    private int mHoverItemIndex = -1;
 
     public MultiChoicesCircleButton(Context context) {
         this(context, null);
@@ -70,6 +74,9 @@ public class MultiChoicesCircleButton extends View {
         mTextColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_textColor, Color.GRAY);
         mButtonColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_buttonColor, Color.parseColor("#FC516A"));
         mDuration = typedArray.getInt(R.styleable.MultiChoicesCircleButton_mccb_duration, 200);
+        mItemRadius = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_itemRadius, dp2px(20));
+        mItemDistanceToCentre = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_itemDistanceToCentre, dp2px(80));
+        mItemBackgroundColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_itemBackgroundColor, Color.WHITE);
         typedArray.recycle();
 
         initPaint();
@@ -135,14 +142,14 @@ public class MultiChoicesCircleButton extends View {
                 isDragged = true;
                 rotate(eventX, eventY);
                 if (actionDownInCircle(eventX, eventY)) {
-                    mSelectedItemIndex = getSelectedItemIndex(eventX, eventY);
+                    mHoverItemIndex = getSelectedItemIndex(eventX, eventY);
                 }
                 return true;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 isDragged = false;
-                mSelectedItemIndex = -1;
+                mHoverItemIndex = -1;
                 clearAnimation();
                 mFromExpandProgress = mCurrentExpandProgress;
                 startCollapseAnimation();
@@ -162,12 +169,12 @@ public class MultiChoicesCircleButton extends View {
         if (!mItems.isEmpty()) {
             for (int i = 0; i < mItems.size(); i++) {
                 Item item = mItems.get(i);
-                float offsetX = (float) (item.distance * Math.cos(Math.PI * item.angle / 180));
-                float offsetY = (float) (item.distance * Math.sin(Math.PI * item.angle / 180));
+                float offsetX = (float) (mItemDistanceToCentre * Math.cos(Math.PI * item.angle / 180));
+                float offsetY = (float) (mItemDistanceToCentre * Math.sin(Math.PI * item.angle / 180));
                 float itemCentreX = mCircleCentreX - offsetX * mCurrentExpandProgress;
                 float itemCentreY = mCircleCentreY - offsetY * mCurrentExpandProgress;
                 double distance = Math.pow(x - itemCentreX, 2) + Math.pow(y - itemCentreY, 2);
-                if (distance < item.radius * item.radius) {
+                if (distance < mItemRadius * mItemRadius) {
                     return i;
                 }
             }
@@ -188,7 +195,7 @@ public class MultiChoicesCircleButton extends View {
         canvas.drawCircle(mCircleCentreX, mCircleCentreY, radius, mPaint);
 
         // Draw text
-        String text = mSelectedItemIndex == -1 ? mText : mItems.get(mSelectedItemIndex).text;
+        String text = mHoverItemIndex == -1 ? mText : mItems.get(mHoverItemIndex).text;
         if (text != null && text.length() != 0) {
             mPaint.setTextSize(mTextSize * mCurrentExpandProgress);
             mPaint.setColor(mTextColor);
@@ -200,20 +207,20 @@ public class MultiChoicesCircleButton extends View {
         }
 
         if (!mItems.isEmpty()) {
-            mPaint.setColor(Color.WHITE);
+            mPaint.setColor(mItemBackgroundColor);
             for (int i = 0; i < mItems.size(); i++) {
                 Item item = mItems.get(i);
 
-                mPaint.setAlpha(mSelectedItemIndex == i ? 255 : 255*8/10);
+                mPaint.setAlpha(mHoverItemIndex == i ? 255 : 255*8/10);
 
-                float offsetX = (float) (item.distance * Math.cos(Math.PI * item.angle / 180));
-                float offsetY = (float) (item.distance * Math.sin(Math.PI * item.angle / 180));
+                float offsetX = (float) (mItemDistanceToCentre * Math.cos(Math.PI * item.angle / 180));
+                float offsetY = (float) (mItemDistanceToCentre * Math.sin(Math.PI * item.angle / 180));
                 float itemCentreX = mCircleCentreX - offsetX * mCurrentExpandProgress;
                 float itemCentreY = mCircleCentreY - offsetY * mCurrentExpandProgress;
-                canvas.drawCircle(itemCentreX, itemCentreY, item.radius * mCurrentExpandProgress, mPaint);
+                canvas.drawCircle(itemCentreX, itemCentreY, mItemRadius * mCurrentExpandProgress, mPaint);
 
                 if (item.icon != null) {
-                    float size = item.radius * 2 / 3 * mCurrentExpandProgress;
+                    float size = mItemRadius * 2 / 3 * mCurrentExpandProgress;
                     int left = (int) (itemCentreX - size);
                     int top = (int) (itemCentreY - size);
                     int right = (int) (itemCentreX + size);
@@ -263,7 +270,7 @@ public class MultiChoicesCircleButton extends View {
     }
 
     public void setButtonItems(List<Item> items) {
-        mSelectedItemIndex = -1;
+        mHoverItemIndex = -1;
         mItems.clear();
         mItems.addAll(items);
         invalidate();
@@ -333,17 +340,13 @@ public class MultiChoicesCircleButton extends View {
 
     public static class Item {
         private String text;
-        private float radius;
         private Drawable icon;
         private int angle;
-        private float distance;
 
-        public Item(String text, int radiusDP, Drawable icon , int angle, int distanceDP) {
+        public Item(String text, Drawable icon , int angle) {
             this.text = text;
-            this.radius = dp2px(radiusDP);
             this.icon = icon;
             this.angle = angle;
-            this.distance = dp2px(distanceDP);
         }
     }
 }
