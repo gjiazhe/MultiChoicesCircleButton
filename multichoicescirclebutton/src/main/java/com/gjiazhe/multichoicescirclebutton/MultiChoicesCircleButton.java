@@ -24,6 +24,8 @@ import java.util.List;
  */
 
 public class MultiChoicesCircleButton extends View {
+    private boolean mParallaxEnabled;
+
     private boolean isDragged = false;
     private float mCollapseRadius;
     private float mExpandRadius;
@@ -46,8 +48,8 @@ public class MultiChoicesCircleButton extends View {
     private int mButtonColor;
 
     private Paint mPaint;
-    private Camera mCamera = new Camera();
-    private Matrix mMatrix = new Matrix();
+    private Camera mCamera;
+    private Matrix mMatrix;
 
     private static DisplayMetrics mDisplayMetrics;
 
@@ -69,6 +71,7 @@ public class MultiChoicesCircleButton extends View {
         mDisplayMetrics = context.getResources().getDisplayMetrics();
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.MultiChoicesCircleButton);
+        mParallaxEnabled = typedArray.getBoolean(R.styleable.MultiChoicesCircleButton_mccb_enableParallax, true);
         mCollapseRadius = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_collapseRadius, dp2px(40));
         mExpandRadius = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_expandRadius, dp2px(120));
         mText = typedArray.getString(R.styleable.MultiChoicesCircleButton_mccb_text);
@@ -83,6 +86,10 @@ public class MultiChoicesCircleButton extends View {
 
         initPaint();
         initAnimation();
+        if (mParallaxEnabled) {
+            mCamera = new Camera();
+            mMatrix = new Matrix();
+        }
     }
 
     private void initPaint() {
@@ -142,10 +149,13 @@ public class MultiChoicesCircleButton extends View {
 
             case MotionEvent.ACTION_MOVE:
                 isDragged = true;
-                rotate(eventX, eventY);
                 if (actionDownInCircle(eventX, eventY)) {
                     mHoverItemIndex = getSelectedItemIndex(eventX, eventY);
                 }
+                if (mParallaxEnabled) {
+                    rotate(eventX, eventY);
+                }
+                invalidate();
                 return true;
 
             case MotionEvent.ACTION_UP:
@@ -191,7 +201,7 @@ public class MultiChoicesCircleButton extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (isDragged) {
+        if (mParallaxEnabled && isDragged) {
             canvas.concat(mMatrix);
         }
 
@@ -218,7 +228,7 @@ public class MultiChoicesCircleButton extends View {
             for (int i = 0; i < mItems.size(); i++) {
                 Item item = mItems.get(i);
 
-                mPaint.setAlpha(mHoverItemIndex == i ? 255 : 255*8/10);
+                mPaint.setAlpha(mHoverItemIndex == i ? 255 : 255*7/10);
 
                 float offsetX = (float) (mItemDistanceToCentre * Math.cos(Math.PI * item.angle / 180));
                 float offsetY = (float) (mItemDistanceToCentre * Math.sin(Math.PI * item.angle / 180));
@@ -255,7 +265,6 @@ public class MultiChoicesCircleButton extends View {
         mCamera.restore();
         mMatrix.preTranslate(-mCircleCentreX, -mCircleCentreY);
         mMatrix.postTranslate(mCircleCentreX, mCircleCentreY);
-        invalidate();
     }
 
     private void startExpandAnimation() {
@@ -343,6 +352,21 @@ public class MultiChoicesCircleButton extends View {
     public void setButtonColor(int buttonColor) {
         this.mButtonColor = buttonColor;
         invalidate();
+    }
+
+    public boolean isParallaxEnabled() {
+        return mParallaxEnabled;
+    }
+
+    public void setParallaxEnabled(boolean enabled) {
+        this.mParallaxEnabled = enabled;
+        if (enabled) {
+            mCamera = new Camera();
+            mMatrix = new Matrix();
+        } else {
+            mCamera = null;
+            mMatrix = null;
+        }
     }
 
     public OnSelectedItemListener getOnSelectedItemListener() {
