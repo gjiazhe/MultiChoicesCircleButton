@@ -45,7 +45,7 @@ public class MultiChoicesCircleButton extends View {
     private Camera mCamera = new Camera();
     private Matrix mMatrix = new Matrix();
 
-    private DisplayMetrics mDisplayMetrics;
+    private static DisplayMetrics mDisplayMetrics;
 
     private List<Item> mItems = new ArrayList<>();
     private int mSelectedItemIndex = -1;
@@ -71,13 +71,6 @@ public class MultiChoicesCircleButton extends View {
         mButtonColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_buttonColor, Color.parseColor("#FC516A"));
         mDuration = typedArray.getInt(R.styleable.MultiChoicesCircleButton_mccb_duration, 200);
         typedArray.recycle();
-
-        Item item1 = new Item("Like", 20, getResources().getDrawable(R.drawable.icon1), 30, 80);
-        mItems.add(item1);
-        Item item2 = new Item("Message", 20, getResources().getDrawable(R.drawable.icon2), 90, 80);
-        mItems.add(item2);
-        Item item3 = new Item("Tag", 20, getResources().getDrawable(R.drawable.icon3), 150, 80);
-        mItems.add(item3);
 
         initPaint();
         initAnimation();
@@ -261,15 +254,84 @@ public class MultiChoicesCircleButton extends View {
         startAnimation(collapseAnimation);
     }
 
-    private float dp2px(int dp) {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, this.mDisplayMetrics);
+    private static float dp2px(int dp) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, mDisplayMetrics);
     }
 
-    private float sp2px(int sp) {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, this.mDisplayMetrics);
+    private static float sp2px(int sp) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, mDisplayMetrics);
     }
 
-    public class Item {
+    public void setButtonItems(List<Item> items) {
+        mSelectedItemIndex = -1;
+        mItems.clear();
+        mItems.addAll(items);
+        invalidate();
+    }
+
+    public float getCollapseRadius() {
+        return mCollapseRadius;
+    }
+
+    public void setCollapseRadius(float collapseRadius) {
+        this.mCollapseRadius = collapseRadius;
+        invalidate();
+    }
+
+    public float getExpandRadius() {
+        return mExpandRadius;
+    }
+
+    public void setExpandRadius(float expandRadius) {
+        this.mExpandRadius = expandRadius;
+        invalidate();
+    }
+
+    public int getDuration() {
+        return mDuration;
+    }
+
+    public void setDuration(int duration) {
+        this.mDuration = duration;
+    }
+
+    public String getText() {
+        return mText;
+    }
+
+    public void setText(String text) {
+        this.mText = text;
+        invalidate();
+    }
+
+    public float getTextSize() {
+        return mTextSize;
+    }
+
+    public void setTextSize(float textSize) {
+        this.mTextSize = textSize;
+        invalidate();
+    }
+
+    public int getTextColor() {
+        return mTextColor;
+    }
+
+    public void setTextColor(int textColor) {
+        this.mTextColor = textColor;
+        invalidate();
+    }
+
+    public int getButtonColor() {
+        return mButtonColor;
+    }
+
+    public void setButtonColor(int buttonColor) {
+        this.mButtonColor = buttonColor;
+        invalidate();
+    }
+
+    public static class Item {
         private String text;
         private float radius;
         private Drawable icon;
