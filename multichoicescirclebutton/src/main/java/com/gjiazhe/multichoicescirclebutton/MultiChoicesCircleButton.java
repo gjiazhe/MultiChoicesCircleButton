@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -14,6 +15,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by gjz on 08/12/2016.
@@ -43,6 +47,8 @@ public class MultiChoicesCircleButton extends View {
 
     private DisplayMetrics mDisplayMetrics;
 
+    private List<Item> mItems = new ArrayList<>();
+
     public MultiChoicesCircleButton(Context context) {
         this(context, null);
     }
@@ -61,9 +67,16 @@ public class MultiChoicesCircleButton extends View {
         mText = typedArray.getString(R.styleable.MultiChoicesCircleButton_mccb_text);
         mTextSize = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_textSize, sp2px(30));
         mTextColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_textColor, Color.GRAY);
-        mButtonColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_buttonColor, Color.RED);
+        mButtonColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_buttonColor, Color.parseColor("#FC516A"));
         mDuration = typedArray.getInt(R.styleable.MultiChoicesCircleButton_mccb_duration, 200);
         typedArray.recycle();
+
+        Item item1 = new Item("Like", 20, getResources().getDrawable(R.drawable.icon1), 30, 80);
+        mItems.add(item1);
+        Item item2 = new Item("Message", 20, getResources().getDrawable(R.drawable.icon2), 90, 80);
+        mItems.add(item2);
+        Item item3 = new Item("Tag", 20, getResources().getDrawable(R.drawable.icon3), 150, 80);
+        mItems.add(item3);
 
         initPaint();
         initAnimation();
@@ -155,6 +168,7 @@ public class MultiChoicesCircleButton extends View {
         }
 
         // Draw circle
+        mPaint.setAlpha(255);
         mPaint.setColor(mButtonColor);
         final float radius = (mExpandRadius - mCollapseRadius) * mCurrentExpandProgress + mCollapseRadius;
         canvas.drawCircle(mCircleCentreX, mCircleCentreY, radius, mPaint);
@@ -168,6 +182,28 @@ public class MultiChoicesCircleButton extends View {
             final float baseLineY = mCircleCentreY - radius - textHeight / 2
                     - (fontMetrics.descent - fontMetrics.ascent) / 2 - fontMetrics.ascent;
             canvas.drawText(mText, mCircleCentreX, baseLineY, mPaint);
+        }
+
+        if (!mItems.isEmpty()) {
+            mPaint.setColor(Color.WHITE);
+            mPaint.setAlpha(255*8/10);
+            for (Item item : mItems) {
+                float offsetX = (float) (item.distance * Math.cos(Math.PI * item.angle / 180));
+                float offsetY = (float) (item.distance * Math.sin(Math.PI * item.angle / 180));
+                float itemCentreX = mCircleCentreX - offsetX * mCurrentExpandProgress;
+                float itemCentreY = mCircleCentreY - offsetY * mCurrentExpandProgress;
+                canvas.drawCircle(itemCentreX, itemCentreY, item.radius * mCurrentExpandProgress, mPaint);
+
+                if (item.icon != null) {
+                    float size = item.radius * 2 / 3 * mCurrentExpandProgress;
+                    int left = (int) (itemCentreX - size);
+                    int top = (int) (itemCentreY - size);
+                    int right = (int) (itemCentreX + size);
+                    int bottom = (int) (itemCentreY + size);
+                    item.icon.setBounds(left, top, right, bottom);
+                    item.icon.draw(canvas);
+                }
+            }
         }
     }
 
@@ -206,5 +242,21 @@ public class MultiChoicesCircleButton extends View {
 
     private float sp2px(int sp) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, this.mDisplayMetrics);
+    }
+
+    public class Item {
+        private String text;
+        private float radius;
+        private Drawable icon;
+        private int angle;
+        private float distance;
+
+        public Item(String text, int radiusDP, Drawable icon , int angle, int distanceDP) {
+            this.text = text;
+            this.radius = dp2px(radiusDP);
+            this.icon = icon;
+            this.angle = angle;
+            this.distance = dp2px(distanceDP);
+        }
     }
 }
