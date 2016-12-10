@@ -48,6 +48,7 @@ public class MultiChoicesCircleButton extends View {
     private DisplayMetrics mDisplayMetrics;
 
     private List<Item> mItems = new ArrayList<>();
+    private int mSelectedItemIndex = -1;
 
     public MultiChoicesCircleButton(Context context) {
         this(context, null);
@@ -140,11 +141,15 @@ public class MultiChoicesCircleButton extends View {
             case MotionEvent.ACTION_MOVE:
                 isDragged = true;
                 rotate(eventX, eventY);
+                if (actionDownInCircle(eventX, eventY)) {
+                    mSelectedItemIndex = getSelectedItemIndex(eventX, eventY);
+                }
                 return true;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 isDragged = false;
+                mSelectedItemIndex = -1;
                 clearAnimation();
                 mFromExpandProgress = mCurrentExpandProgress;
                 startCollapseAnimation();
@@ -157,8 +162,24 @@ public class MultiChoicesCircleButton extends View {
     private boolean actionDownInCircle(float x, float y) {
         final float currentRadius = (mExpandRadius - mCollapseRadius) * mCurrentExpandProgress + mCollapseRadius;
         double distance = Math.pow(x - mCircleCentreX, 2) + Math.pow(y - mCircleCentreY, 2);
-        distance = Math.sqrt(distance);
-        return distance <= currentRadius;
+        return distance <= currentRadius * currentRadius;
+    }
+
+    private int getSelectedItemIndex(float x, float y) {
+        if (!mItems.isEmpty()) {
+            for (int i = 0; i < mItems.size(); i++) {
+                Item item = mItems.get(i);
+                float offsetX = (float) (item.distance * Math.cos(Math.PI * item.angle / 180));
+                float offsetY = (float) (item.distance * Math.sin(Math.PI * item.angle / 180));
+                float itemCentreX = mCircleCentreX - offsetX * mCurrentExpandProgress;
+                float itemCentreY = mCircleCentreY - offsetY * mCurrentExpandProgress;
+                double distance = Math.pow(x - itemCentreX, 2) + Math.pow(y - itemCentreY, 2);
+                if (distance < item.radius * item.radius) {
+                    return i;
+                }
+            }
+        }
+        return  -1;
     }
 
     @Override
@@ -174,20 +195,24 @@ public class MultiChoicesCircleButton extends View {
         canvas.drawCircle(mCircleCentreX, mCircleCentreY, radius, mPaint);
 
         // Draw text
-        if (mText != null && mText.length() != 0) {
+        String text = mSelectedItemIndex == -1 ? mText : mItems.get(mSelectedItemIndex).text;
+        if (text != null && text.length() != 0) {
             mPaint.setTextSize(mTextSize * mCurrentExpandProgress);
             mPaint.setColor(mTextColor);
             Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
             final float textHeight = fontMetrics.bottom - fontMetrics.top;
             final float baseLineY = mCircleCentreY - radius - textHeight / 2
                     - (fontMetrics.descent - fontMetrics.ascent) / 2 - fontMetrics.ascent;
-            canvas.drawText(mText, mCircleCentreX, baseLineY, mPaint);
+            canvas.drawText(text, mCircleCentreX, baseLineY, mPaint);
         }
 
         if (!mItems.isEmpty()) {
             mPaint.setColor(Color.WHITE);
-            mPaint.setAlpha(255*8/10);
-            for (Item item : mItems) {
+            for (int i = 0; i < mItems.size(); i++) {
+                Item item = mItems.get(i);
+
+                mPaint.setAlpha(mSelectedItemIndex == i ? 255 : 255*8/10);
+
                 float offsetX = (float) (item.distance * Math.cos(Math.PI * item.angle / 180));
                 float offsetY = (float) (item.distance * Math.sin(Math.PI * item.angle / 180));
                 float itemCentreX = mCircleCentreX - offsetX * mCurrentExpandProgress;
