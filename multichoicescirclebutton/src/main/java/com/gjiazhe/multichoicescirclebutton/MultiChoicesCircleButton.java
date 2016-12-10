@@ -54,6 +54,8 @@ public class MultiChoicesCircleButton extends View {
     private List<Item> mItems = new ArrayList<>();
     private int mHoverItemIndex = -1;
 
+    private OnSelectedItemListener mListener;
+
     public MultiChoicesCircleButton(Context context) {
         this(context, null);
     }
@@ -149,7 +151,12 @@ public class MultiChoicesCircleButton extends View {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 isDragged = false;
-                mHoverItemIndex = -1;
+                if (mHoverItemIndex != -1) {
+                    if (mListener != null) {
+                        mListener.onSelected(mItems.get(mHoverItemIndex));
+                    }
+                    mHoverItemIndex = -1;
+                }
                 clearAnimation();
                 mFromExpandProgress = mCurrentExpandProgress;
                 startCollapseAnimation();
@@ -338,6 +345,14 @@ public class MultiChoicesCircleButton extends View {
         invalidate();
     }
 
+    public OnSelectedItemListener getOnSelectedItemListener() {
+        return mListener;
+    }
+
+    public void setOnSelectedItemListener(OnSelectedItemListener mListener) {
+        this.mListener = mListener;
+    }
+
     public static class Item {
         private String text;
         private Drawable icon;
@@ -348,5 +363,21 @@ public class MultiChoicesCircleButton extends View {
             this.icon = icon;
             this.angle = angle;
         }
+
+        public String getText() {
+            return text;
+        }
+
+        public Drawable getIcon() {
+            return icon;
+        }
+
+        public int getAngle() {
+            return angle;
+        }
+    }
+
+    public interface OnSelectedItemListener {
+        void onSelected(Item item);
     }
 }
