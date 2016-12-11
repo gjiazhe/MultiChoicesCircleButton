@@ -64,6 +64,7 @@ public class MultiChoicesCircleButton extends View {
     private int mHoverItemIndex = -1;
 
     private OnSelectedItemListener mSelectedItemListener;
+    private OnHoverItemListener mOnHoverItemListener;
 
     public MultiChoicesCircleButton(Context context) {
         this(context, null);
@@ -160,6 +161,9 @@ public class MultiChoicesCircleButton extends View {
             case MotionEvent.ACTION_MOVE:
                 if (mState == STATE_EXPANDED && actionDownInCircle(eventX, eventY)) {
                     mHoverItemIndex = getSelectedItemIndex(eventX, eventY);
+                    if (mHoverItemIndex != -1 && mOnHoverItemListener != null) {
+                        mOnHoverItemListener.onHovered(mItems.get(mHoverItemIndex), mHoverItemIndex);
+                    }
                 }
                 if (mParallaxEnabled) {
                     calculateRotateMatrix(eventX, eventY);
@@ -422,6 +426,14 @@ public class MultiChoicesCircleButton extends View {
         this.mSelectedItemListener = mListener;
     }
 
+    public OnHoverItemListener getOnHoverItemListener() {
+        return mOnHoverItemListener;
+    }
+
+    public void setOnHoverItemListener(OnHoverItemListener onHoverItemListener) {
+        this.mOnHoverItemListener = onHoverItemListener;
+    }
+
     public static class Item {
         private String text;
         private Drawable icon;
@@ -448,5 +460,9 @@ public class MultiChoicesCircleButton extends View {
 
     public interface OnSelectedItemListener {
         void onSelected(Item item, int index);
+    }
+
+    public interface OnHoverItemListener {
+        void onHovered(Item item, int index);
     }
 }
