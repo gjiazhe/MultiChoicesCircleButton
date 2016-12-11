@@ -9,7 +9,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -29,7 +28,7 @@ import java.util.List;
 public class MultiChoicesCircleButton extends View {
     private boolean mParallaxEnabled;
 
-    private boolean isDragged = false;
+    private boolean isExpanded = false;
     private float mCollapseRadius;
     private float mExpandRadius;
     private float mCircleCentreX;
@@ -144,6 +143,7 @@ public class MultiChoicesCircleButton extends View {
                 if (actionDownInCircle(eventX, eventY)) {
                     clearAnimation();
                     mFromExpandProgress = mCurrentExpandProgress;
+                    isExpanded = true;
                     startExpandAnimation();
                     return true;
                 } else {
@@ -151,7 +151,6 @@ public class MultiChoicesCircleButton extends View {
                 }
 
             case MotionEvent.ACTION_MOVE:
-                isDragged = true;
                 if (actionDownInCircle(eventX, eventY)) {
                     mHoverItemIndex = getSelectedItemIndex(eventX, eventY);
                 }
@@ -163,7 +162,7 @@ public class MultiChoicesCircleButton extends View {
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                isDragged = false;
+                isExpanded = false;
                 if (mHoverItemIndex != -1) {
                     if (mListener != null) {
                         mListener.onSelected(mItems.get(mHoverItemIndex), mHoverItemIndex);
@@ -204,7 +203,7 @@ public class MultiChoicesCircleButton extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (mParallaxEnabled && isDragged) {
+        if (mParallaxEnabled && isExpanded) {
             canvas.concat(mMatrix);
         }
 
@@ -213,6 +212,10 @@ public class MultiChoicesCircleButton extends View {
         mPaint.setColor(mButtonColor);
         final float radius = (mExpandRadius - mCollapseRadius) * mCurrentExpandProgress + mCollapseRadius;
         canvas.drawCircle(mCircleCentreX, mCircleCentreY, radius, mPaint);
+
+        if (!isExpanded) {
+            return;
+        }
 
         // Draw text
         String text = mHoverItemIndex == -1 ? mText : mItems.get(mHoverItemIndex).text;
@@ -226,6 +229,7 @@ public class MultiChoicesCircleButton extends View {
             canvas.drawText(text, mCircleCentreX, baseLineY, mPaint);
         }
 
+        // Draw items
         if (!mItems.isEmpty()) {
             mPaint.setColor(mItemBackgroundColor);
             for (int i = 0; i < mItems.size(); i++) {
@@ -293,9 +297,10 @@ public class MultiChoicesCircleButton extends View {
     }
 
     public void hide(boolean withAnimation) {
-        if (isDragged) {
-            isDragged = false;
+        if (isExpanded) {
+            isExpanded = false;
             mCurrentExpandProgress = 0;
+            mHoverItemIndex = -1;
             invalidate();
         }
         ViewCompat.animate(this)
