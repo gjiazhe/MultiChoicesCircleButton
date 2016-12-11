@@ -26,9 +26,14 @@ import java.util.List;
  */
 
 public class MultiChoicesCircleButton extends View {
+    private byte mState = STATE_COLLAPSED;
+    private static final byte STATE_COLLAPSED = 1;
+    private static final byte STATE_EXPANDED = 2;
+    private static final byte STATE_COLLAPSING = 3;
+    private static final byte STATE_EXPANDING = 4;
+
     private boolean mParallaxEnabled;
 
-    private boolean isExpanded = false;
     private float mCollapseRadius;
     private float mExpandRadius;
     private float mCircleCentreX;
@@ -58,7 +63,7 @@ public class MultiChoicesCircleButton extends View {
     private List<Item> mItems = new ArrayList<>();
     private int mHoverItemIndex = -1;
 
-    private OnSelectedItemListener mListener;
+    private OnSelectedItemListener mSelectedItemListener;
 
     public MultiChoicesCircleButton(Context context) {
         this(context, null);
@@ -104,8 +109,9 @@ public class MultiChoicesCircleButton extends View {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 mCurrentExpandProgress = mFromExpandProgress + (1 - mFromExpandProgress) * interpolatedTime;
-                if (mCurrentExpandProgress > 1f) {
+                if (mCurrentExpandProgress >= 1f) {
                     mCurrentExpandProgress = 1f;
+                    mState = STATE_EXPANDED;
                 }
                 invalidate();
             }
@@ -115,8 +121,9 @@ public class MultiChoicesCircleButton extends View {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 mCurrentExpandProgress = mFromExpandProgress  * (1 - interpolatedTime);
-                if (mCurrentExpandProgress < 0f) {
+                if (mCurrentExpandProgress <= 0f) {
                     mCurrentExpandProgress = 0f;
+                    mState = STATE_COLLAPSED;
                 }
                 invalidate();
             }
@@ -143,7 +150,7 @@ public class MultiChoicesCircleButton extends View {
                 if (actionDownInCircle(eventX, eventY)) {
                     clearAnimation();
                     mFromExpandProgress = mCurrentExpandProgress;
-                    isExpanded = true;
+                    mState = STATE_EXPANDING;
                     startExpandAnimation();
                     return true;
                 } else {
@@ -151,26 +158,26 @@ public class MultiChoicesCircleButton extends View {
                 }
 
             case MotionEvent.ACTION_MOVE:
-                if (actionDownInCircle(eventX, eventY)) {
+                if (mState == STATE_EXPANDED && actionDownInCircle(eventX, eventY)) {
                     mHoverItemIndex = getSelectedItemIndex(eventX, eventY);
                 }
                 if (mParallaxEnabled) {
-                    rotate(eventX, eventY);
+                    calculateRotateMatrix(eventX, eventY);
                 }
                 invalidate();
                 return true;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                isExpanded = false;
-                if (mHoverItemIndex != -1) {
-                    if (mListener != null) {
-                        mListener.onSelected(mItems.get(mHoverItemIndex), mHoverItemIndex);
+                if (mHoverItemIndex != -1 && mState == STATE_EXPANDED) {
+                    if (mSelectedItemListener != null) {
+                        mSelectedItemListener.onSelected(mItems.get(mHoverItemIndex), mHoverItemIndex);
                     }
                     mHoverItemIndex = -1;
                 }
                 clearAnimation();
                 mFromExpandProgress = mCurrentExpandProgress;
+                mState = STATE_COLLAPSING;
                 startCollapseAnimation();
                 return true;
         }
@@ -203,7 +210,8 @@ public class MultiChoicesCircleButton extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (mParallaxEnabled && isExpanded) {
+        // Rotate for parallax effect
+        if (mParallaxEnabled && (mState == STATE_EXPANDING || mState == STATE_EXPANDED)) {
             canvas.concat(mMatrix);
         }
 
@@ -213,7 +221,7 @@ public class MultiChoicesCircleButton extends View {
         final float radius = (mExpandRadius - mCollapseRadius) * mCurrentExpandProgress + mCollapseRadius;
         canvas.drawCircle(mCircleCentreX, mCircleCentreY, radius, mPaint);
 
-        if (!isExpanded) {
+        if (mState == STATE_COLLAPSED) {
             return;
         }
 
@@ -256,7 +264,7 @@ public class MultiChoicesCircleButton extends View {
         }
     }
 
-    private void rotate(float eventX, float eventY) {
+    private void calculateRotateMatrix(float eventX, float eventY) {
         final int width = getWidth() - getPaddingLeft() - getPaddingRight();
         final int height = getHeight() - getPaddingTop() - getPaddingBottom();
         final int size = Math.max(width, height);
@@ -297,8 +305,8 @@ public class MultiChoicesCircleButton extends View {
     }
 
     public void hide(boolean withAnimation) {
-        if (isExpanded) {
-            isExpanded = false;
+        if (mState == STATE_EXPANDED) {
+            mState = STATE_COLLAPSED;
             mCurrentExpandProgress = 0;
             mHoverItemIndex = -1;
             invalidate();
@@ -407,11 +415,11 @@ public class MultiChoicesCircleButton extends View {
     }
 
     public OnSelectedItemListener getOnSelectedItemListener() {
-        return mListener;
+        return mSelectedItemListener;
     }
 
     public void setOnSelectedItemListener(OnSelectedItemListener mListener) {
-        this.mListener = mListener;
+        this.mSelectedItemListener = mListener;
     }
 
     public static class Item {
