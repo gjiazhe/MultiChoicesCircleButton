@@ -8,6 +8,9 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorListener;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -163,7 +166,7 @@ public class MultiChoicesCircleButton extends View {
                 isDragged = false;
                 if (mHoverItemIndex != -1) {
                     if (mListener != null) {
-                        mListener.onSelected(mItems.get(mHoverItemIndex));
+                        mListener.onSelected(mItems.get(mHoverItemIndex), mHoverItemIndex);
                     }
                     mHoverItemIndex = -1;
                 }
@@ -285,6 +288,35 @@ public class MultiChoicesCircleButton extends View {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, mDisplayMetrics);
     }
 
+    public void hide() {
+        hide(true);
+    }
+
+    public void hide(boolean withAnimation) {
+        if (isDragged) {
+            isDragged = false;
+            mCurrentExpandProgress = 0;
+            invalidate();
+        }
+        ViewCompat.animate(this)
+                .translationY(mCollapseRadius)
+                .setInterpolator(new LinearOutSlowInInterpolator())
+                .setDuration(withAnimation ? 200 : 0)
+                .start();
+    }
+
+    public void show() {
+        show(true);
+    }
+
+    public void show(boolean withAnimation) {
+        ViewCompat.animate(this)
+                .translationY(0)
+                .setInterpolator(new LinearOutSlowInInterpolator())
+                .setDuration(withAnimation ? 200 : 0)
+                .start();
+    }
+
     public void setButtonItems(List<Item> items) {
         mHoverItemIndex = -1;
         mItems.clear();
@@ -402,6 +434,6 @@ public class MultiChoicesCircleButton extends View {
     }
 
     public interface OnSelectedItemListener {
-        void onSelected(Item item);
+        void onSelected(Item item, int index);
     }
 }
