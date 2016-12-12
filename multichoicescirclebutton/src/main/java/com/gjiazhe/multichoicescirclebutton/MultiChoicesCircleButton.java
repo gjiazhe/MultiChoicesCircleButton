@@ -1,5 +1,6 @@
 package com.gjiazhe.multichoicescirclebutton;
 
+import android.animation.ArgbEvaluator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Camera;
@@ -54,6 +55,10 @@ public class MultiChoicesCircleButton extends View {
     private int mTextColor;
     private int mButtonColor;
 
+    private boolean mShowBackgroundShadowEnable;
+    private int mBackgroundShadowColor;
+    private ArgbEvaluator backgroundEvaluator;
+
     private Paint mPaint;
     private Camera mCamera;
     private Matrix mMatrix;
@@ -90,6 +95,8 @@ public class MultiChoicesCircleButton extends View {
         mItemRadius = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_itemRadius, dp2px(20));
         mItemDistanceToCentre = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_itemDistanceToCentre, dp2px(80));
         mItemBackgroundColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_itemBackgroundColor, Color.WHITE);
+        mShowBackgroundShadowEnable = typedArray.getBoolean(R.styleable.MultiChoicesCircleButton_mccb_showBackgroundShadow, true);
+        mBackgroundShadowColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_backgroundShadowColor, Color.parseColor("#88757575"));
         typedArray.recycle();
 
         initPaint();
@@ -97,6 +104,9 @@ public class MultiChoicesCircleButton extends View {
         if (mParallaxEnabled) {
             mCamera = new Camera();
             mMatrix = new Matrix();
+        }
+        if (mShowBackgroundShadowEnable) {
+            backgroundEvaluator = new ArgbEvaluator();
         }
     }
 
@@ -115,6 +125,7 @@ public class MultiChoicesCircleButton extends View {
                     mState = STATE_EXPANDED;
                 }
                 invalidate();
+                updateBackgroundColor();
             }
         };
 
@@ -127,6 +138,7 @@ public class MultiChoicesCircleButton extends View {
                     mState = STATE_COLLAPSED;
                 }
                 invalidate();
+                updateBackgroundColor();
             }
         };
     }
@@ -212,6 +224,24 @@ public class MultiChoicesCircleButton extends View {
         return  -1;
     }
 
+    private void calculateRotateMatrix(float eventX, float eventY) {
+        final int width = getWidth() - getPaddingLeft() - getPaddingRight();
+        final int height = getHeight() - getPaddingTop() - getPaddingBottom();
+        final int size = Math.max(width, height);
+
+        final float offsetY = mCircleCentreY - eventY;
+        final float offsetX = mCircleCentreX - eventX;
+        final float rotateX = offsetY / size * 45;
+        final float rotateY = -offsetX / size * 45;
+        mCamera.save();
+        mCamera.rotateX(rotateX);
+        mCamera.rotateY(rotateY);
+        mCamera.getMatrix(mMatrix);
+        mCamera.restore();
+        mMatrix.preTranslate(-mCircleCentreX, -mCircleCentreY);
+        mMatrix.postTranslate(mCircleCentreX, mCircleCentreY);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         // Rotate for parallax effect
@@ -268,22 +298,11 @@ public class MultiChoicesCircleButton extends View {
         }
     }
 
-    private void calculateRotateMatrix(float eventX, float eventY) {
-        final int width = getWidth() - getPaddingLeft() - getPaddingRight();
-        final int height = getHeight() - getPaddingTop() - getPaddingBottom();
-        final int size = Math.max(width, height);
-
-        final float offsetY = mCircleCentreY - eventY;
-        final float offsetX = mCircleCentreX - eventX;
-        final float rotateX = offsetY / size * 45;
-        final float rotateY = -offsetX / size * 45;
-        mCamera.save();
-        mCamera.rotateX(rotateX);
-        mCamera.rotateY(rotateY);
-        mCamera.getMatrix(mMatrix);
-        mCamera.restore();
-        mMatrix.preTranslate(-mCircleCentreX, -mCircleCentreY);
-        mMatrix.postTranslate(mCircleCentreX, mCircleCentreY);
+    private void updateBackgroundColor() {
+        if (mShowBackgroundShadowEnable) {
+            int color = (Integer) backgroundEvaluator.evaluate(mCurrentExpandProgress, Color.TRANSPARENT, mBackgroundShadowColor);
+            setBackgroundColor(color);
+        }
     }
 
     private void startExpandAnimation() {
@@ -416,6 +435,28 @@ public class MultiChoicesCircleButton extends View {
             mCamera = null;
             mMatrix = null;
         }
+    }
+
+    public void setShowBackgroundShadowEnable(boolean show) {
+        mShowBackgroundShadowEnable = show;
+        if (show) {
+            backgroundEvaluator = new ArgbEvaluator();
+        } else {
+            backgroundEvaluator = null;
+        }
+    }
+
+    public boolean isShowBackgroundShadowEnable() {
+        return mShowBackgroundShadowEnable;
+    }
+
+    public void setBackgroundShadowColor(int color) {
+        mBackgroundShadowColor = color;
+        invalidate();
+    }
+
+    public int getBackgroundShadowColor() {
+        return mBackgroundShadowColor;
     }
 
     public OnSelectedItemListener getOnSelectedItemListener() {
