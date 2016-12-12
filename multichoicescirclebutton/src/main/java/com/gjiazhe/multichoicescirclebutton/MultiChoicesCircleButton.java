@@ -2,6 +2,7 @@ package com.gjiazhe.multichoicescirclebutton;
 
 import android.animation.ArgbEvaluator;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Camera;
 import android.graphics.Canvas;
@@ -12,7 +13,6 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -63,8 +63,6 @@ public class MultiChoicesCircleButton extends View {
     private Camera mCamera;
     private Matrix mMatrix;
 
-    private static DisplayMetrics mDisplayMetrics;
-
     private List<Item> mItems = new ArrayList<>();
     private int mHoverItemIndex = -1;
 
@@ -81,7 +79,6 @@ public class MultiChoicesCircleButton extends View {
 
     public MultiChoicesCircleButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mDisplayMetrics = context.getResources().getDisplayMetrics();
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.MultiChoicesCircleButton);
         mParallaxEnabled = typedArray.getBoolean(R.styleable.MultiChoicesCircleButton_mccb_enableParallax, true);
@@ -89,14 +86,14 @@ public class MultiChoicesCircleButton extends View {
         mExpandRadius = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_expandRadius, dp2px(120));
         mText = typedArray.getString(R.styleable.MultiChoicesCircleButton_mccb_text);
         mTextSize = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_textSize, sp2px(30));
-        mTextColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_textColor, Color.GRAY);
+        mTextColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_textColor, Color.WHITE);
         mButtonColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_buttonColor, Color.parseColor("#FC516A"));
         mDuration = typedArray.getInt(R.styleable.MultiChoicesCircleButton_mccb_duration, 200);
         mItemRadius = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_itemRadius, dp2px(20));
         mItemDistanceToCentre = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_itemDistanceToCentre, dp2px(80));
         mItemBackgroundColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_itemBackgroundColor, Color.WHITE);
         mShowBackgroundShadowEnable = typedArray.getBoolean(R.styleable.MultiChoicesCircleButton_mccb_showBackgroundShadow, true);
-        mBackgroundShadowColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_backgroundShadowColor, Color.parseColor("#88757575"));
+        mBackgroundShadowColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_backgroundShadowColor, Color.parseColor("#99757575"));
         typedArray.recycle();
 
         initPaint();
@@ -161,6 +158,9 @@ public class MultiChoicesCircleButton extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 if (actionDownInCircle(eventX, eventY)) {
+                    if (mParallaxEnabled) {
+                        calculateRotateMatrix(eventX, eventY);
+                    }
                     clearAnimation();
                     mFromExpandProgress = mCurrentExpandProgress;
                     mState = STATE_EXPANDING;
@@ -316,11 +316,11 @@ public class MultiChoicesCircleButton extends View {
     }
 
     private static float dp2px(int dp) {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, mDisplayMetrics);
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, Resources.getSystem().getDisplayMetrics());
     }
 
     private static float sp2px(int sp) {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, mDisplayMetrics);
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, Resources.getSystem().getDisplayMetrics());
     }
 
     public void hide() {
