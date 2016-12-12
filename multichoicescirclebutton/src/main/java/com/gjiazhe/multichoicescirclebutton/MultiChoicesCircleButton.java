@@ -85,7 +85,7 @@ public class MultiChoicesCircleButton extends View {
         mCollapseRadius = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_collapseRadius, dp2px(40));
         mExpandRadius = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_expandRadius, dp2px(120));
         mText = typedArray.getString(R.styleable.MultiChoicesCircleButton_mccb_text);
-        mTextSize = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_textSize, sp2px(30));
+        mTextSize = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_textSize, sp2px(35));
         mTextColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_textColor, Color.WHITE);
         mButtonColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_buttonColor, Color.parseColor("#FC516A"));
         mDuration = typedArray.getInt(R.styleable.MultiChoicesCircleButton_mccb_duration, 200);
@@ -93,7 +93,7 @@ public class MultiChoicesCircleButton extends View {
         mItemDistanceToCentre = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_itemDistanceToCentre, dp2px(80));
         mItemBackgroundColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_itemBackgroundColor, Color.WHITE);
         mShowBackgroundShadowEnable = typedArray.getBoolean(R.styleable.MultiChoicesCircleButton_mccb_showBackgroundShadow, true);
-        mBackgroundShadowColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_backgroundShadowColor, Color.parseColor("#99757575"));
+        mBackgroundShadowColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_backgroundShadowColor, Color.parseColor("#cc757575"));
         typedArray.recycle();
 
         initPaint();
