@@ -98,7 +98,7 @@ public class MultiChoicesCircleButton extends View {
         mItemDistanceToCentre = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_itemDistanceToCentre, dp2px(80));
         mItemBackgroundColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_itemBackgroundColor, Color.WHITE);
         mShowBackgroundShadowEnable = typedArray.getBoolean(R.styleable.MultiChoicesCircleButton_mccb_showBackgroundShadow, true);
-        mBackgroundShadowColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_backgroundShadowColor, Color.parseColor("#cc757575"));
+        mBackgroundShadowColor = typedArray.getColor(R.styleable.MultiChoicesCircleButton_mccb_backgroundShadowColor, Color.parseColor("#bb757575"));
         typedArray.recycle();
 
         initPaint();
