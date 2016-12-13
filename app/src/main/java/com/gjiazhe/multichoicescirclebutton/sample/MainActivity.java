@@ -2,6 +2,7 @@ package com.gjiazhe.multichoicescirclebutton.sample;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.gjiazhe.multichoicescirclebutton.MultiChoicesCircleButton;
 
@@ -26,5 +27,12 @@ public class MainActivity extends AppCompatActivity {
 
         multiChoicesCircleButton = (MultiChoicesCircleButton) findViewById(R.id.multiChoicesCircleButton);
         multiChoicesCircleButton.setButtonItems(buttonItems);
+        multiChoicesCircleButton.setOnSelectedItemListener(new MultiChoicesCircleButton.OnSelectedItemListener() {
+            @Override
+            public void onSelected(MultiChoicesCircleButton.Item item, int index) {
+                Toast.makeText(MainActivity.this, item.getText(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 }
