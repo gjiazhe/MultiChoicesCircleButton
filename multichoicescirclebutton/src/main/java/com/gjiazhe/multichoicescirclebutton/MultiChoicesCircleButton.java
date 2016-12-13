@@ -37,6 +37,8 @@ public class MultiChoicesCircleButton extends View {
 
     private boolean mHidden;
 
+    private Drawable mIcon;
+
     private float mCollapseRadius;
     private float mExpandRadius;
     private float mCircleCentreX;
@@ -83,6 +85,7 @@ public class MultiChoicesCircleButton extends View {
         super(context, attrs, defStyleAttr);
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.MultiChoicesCircleButton);
+        mIcon = typedArray.getDrawable(R.styleable.MultiChoicesCircleButton_mccb_icon);
         mParallaxEnabled = typedArray.getBoolean(R.styleable.MultiChoicesCircleButton_mccb_enableParallax, true);
         mCollapseRadius = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_collapseRadius, dp2px(40));
         mExpandRadius = typedArray.getDimension(R.styleable.MultiChoicesCircleButton_mccb_expandRadius, dp2px(120));
@@ -258,6 +261,16 @@ public class MultiChoicesCircleButton extends View {
         canvas.drawCircle(mCircleCentreX, mCircleCentreY, radius, mPaint);
 
         if (mState == STATE_COLLAPSED) {
+            // Draw icon
+            if (mIcon != null) {
+                float iconRadius = mCollapseRadius / 3;
+                int left = (int) (mCircleCentreX - iconRadius);
+                int top = (int) (mCircleCentreY - iconRadius * 2);
+                int right = (int) (mCircleCentreX + iconRadius);
+                int bottom = (int) (mCircleCentreY);
+                mIcon.setBounds(left, top, right, bottom);
+                mIcon.draw(canvas);
+            }
             return;
         }
 
@@ -288,11 +301,11 @@ public class MultiChoicesCircleButton extends View {
                 canvas.drawCircle(itemCentreX, itemCentreY, mItemRadius * mCurrentExpandProgress, mPaint);
 
                 if (item.icon != null) {
-                    float size = mItemRadius * 2 / 3 * mCurrentExpandProgress;
-                    int left = (int) (itemCentreX - size);
-                    int top = (int) (itemCentreY - size);
-                    int right = (int) (itemCentreX + size);
-                    int bottom = (int) (itemCentreY + size);
+                    float iconRadius = mItemRadius * 2 / 3 * mCurrentExpandProgress;
+                    int left = (int) (itemCentreX - iconRadius);
+                    int top = (int) (itemCentreY - iconRadius);
+                    int right = (int) (itemCentreX + iconRadius);
+                    int bottom = (int) (itemCentreY + iconRadius);
                     item.icon.setBounds(left, top, right, bottom);
                     item.icon.draw(canvas);
                 }
@@ -369,6 +382,15 @@ public class MultiChoicesCircleButton extends View {
         mItems.clear();
         mItems.addAll(items);
         invalidate();
+    }
+
+    public void setIcon(Drawable icon) {
+        mIcon = icon;
+        invalidate();
+    }
+
+    public Drawable getIcon() {
+        return mIcon;
     }
 
     public float getCollapseRadius() {

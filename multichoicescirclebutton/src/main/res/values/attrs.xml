@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="MultiChoicesCircleButton">
+        <attr name="mccb_icon" format="reference"/>
         <attr name="mccb_enableParallax" format="boolean"/>
         <attr name="mccb_collapseRadius" format="dimension"/>
         <attr name="mccb_expandRadius" format="dimension"/>
@@ -12,5 +13,7 @@
         <attr name="mccb_itemRadius" format="dimension"/>
         <attr name="mccb_itemDistanceToCentre" format="dimension"/>
         <attr name="mccb_itemBackgroundColor" format="color"/>
+        <attr name="mccb_showBackgroundShadow" format="boolean"/>
+        <attr name="mccb_backgroundShadowColor" format="boolean"/>
     </declare-styleable>
 </resources>
