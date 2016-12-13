@@ -35,6 +35,8 @@ public class MultiChoicesCircleButton extends View {
 
     private boolean mParallaxEnabled;
 
+    private boolean mHidden;
+
     private float mCollapseRadius;
     private float mExpandRadius;
     private float mCircleCentreX;
@@ -328,6 +330,11 @@ public class MultiChoicesCircleButton extends View {
     }
 
     public void hide(boolean withAnimation) {
+        if (mHidden) {
+            return;
+        }
+
+        mHidden = true;
         if (mState == STATE_EXPANDED) {
             mState = STATE_COLLAPSED;
             mCurrentExpandProgress = 0;
@@ -346,6 +353,10 @@ public class MultiChoicesCircleButton extends View {
     }
 
     public void show(boolean withAnimation) {
+        if (!mHidden) {
+            return;
+        }
+        mHidden = false;
         ViewCompat.animate(this)
                 .translationY(0)
                 .setInterpolator(new LinearOutSlowInInterpolator())
