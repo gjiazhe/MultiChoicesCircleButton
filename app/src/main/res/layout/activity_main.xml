@@ -27,5 +27,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:mccb_icon="@drawable/plus"
-        app:layout_behavior="com.gjiazhe.multichoicescirclebutton.MultiChoicesCircleButtonBehavior"/>
+        app:mccb_text="choose"
+        app:layout_behavior="@string/multi_choices_circle_button_behavior"/>
 </android.support.design.widget.CoordinatorLayout>
