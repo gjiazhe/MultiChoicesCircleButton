@@ -88,6 +88,16 @@ multiChoicesCircleButton.setOnHoverItemListener(new MultiChoicesCircleButton.OnH
 });
 ```
 
+## Wrok with CoordinatorLayout to enable auto hide/show when scrolling
+
+```xml
+<com.gjiazhe.multichoicescirclebutton.MultiChoicesCircleButton
+    ....
+    app:layout_behavior="@string/multi_choices_circle_button_behavior"/>
+```
+
+
+
 ## License
 
     MIT License
