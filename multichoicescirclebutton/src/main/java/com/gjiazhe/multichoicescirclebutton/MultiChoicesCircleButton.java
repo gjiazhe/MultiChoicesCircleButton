@@ -45,7 +45,7 @@ public class MultiChoicesCircleButton extends View {
     private float mCircleCentreY;
 
     private float mItemRadius;
-    private float mItemDistanceToCentre;
+    private float mItemDistanceToCentre; // The distance from items' centre to button's centre
     private int mItemBackgroundColor;
 
     private float mCurrentExpandProgress = 0f;
@@ -477,6 +477,33 @@ public class MultiChoicesCircleButton extends View {
         } else {
             backgroundEvaluator = null;
         }
+    }
+
+    public void setItemRadius(float radius) {
+        mItemRadius = radius;
+        invalidate();
+    }
+
+    public float getItemRadius() {
+        return mItemRadius;
+    }
+
+    public void setItemDistanceToCentre(float distance) {
+        mItemDistanceToCentre = distance;
+        invalidate();
+    }
+
+    public float getItemDistanceToCentre() {
+        return mItemDistanceToCentre;
+    }
+
+    public void setItemBackgroundColor(int color) {
+        mItemBackgroundColor = color;
+        invalidate();
+    }
+
+    public int getItemBackgroundColor() {
+        return mItemBackgroundColor;
     }
 
     public boolean isShowBackgroundShadowEnable() {
