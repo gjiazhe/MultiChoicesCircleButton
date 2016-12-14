@@ -27,6 +27,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:mccb_icon="@drawable/plus"
-        app:mccb_text="choose"
+        app:mccb_text="Choose"
         app:layout_behavior="@string/multi_choices_circle_button_behavior"/>
 </android.support.design.widget.CoordinatorLayout>
